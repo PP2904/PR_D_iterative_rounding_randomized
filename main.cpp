@@ -163,9 +163,9 @@ int main() {
     //ich benötige die utility zu Beginn des Programms, um diese am Ende für die gerundeten Kanten mal 1 zu nehmen
     // und mit der max_utility aus dem fraktionalen Teil zu Vergleichen
 
-    for (int i = 0; i < num_bidders; ++i) {
+  /*  for (int i = 0; i < num_bidders; ++i) {
         cout << utility[i] << endl;
-    }
+    }*/
 
     //Optimales Ergebnis//
 
@@ -282,11 +282,12 @@ int main() {
 
     //frac enthält die fraktionalen Teile der Allokation
 
-    double frac = 0;
+    double frac = 0.0;
 
 
-    //cout << "summe fractional Gut 1 bis " << num_goods << ": \n";
+    cout << "summe fractional Gut 1 bis " << num_goods << ": \n";
     vector<int> fracVec(num_goods);
+    double sum_frac = 0.0;
     for (int j = 0; j < num_goods; ++j) {
         for (int i = 0; i < num_bidders; ++i) {
             if ((20 * (graph[i][j])) < 0.001) {
@@ -295,10 +296,18 @@ int main() {
             frac = frac + (20 * (graph[i][j]) - floor(20 * (graph[i][j])));
         }
 
-        /*fracVec[j] = round(frac);
+        //fracVec[j] = round(frac);
         cout << std::setprecision(pre) << frac << " ";
+        sum_frac = sum_frac + frac;
         cout << " | ";
+        frac = 0;
+
         if (j == (num_goods - 1)) {
+            cout << "\nSumme fraktionale Values: \n" << sum_frac;
+        }
+
+
+        /*if (j == (num_goods - 1)) {
             myfile2 << std::setprecision(pre) << frac;
             continue;
         }
@@ -321,7 +330,7 @@ int main() {
         cout << " | ";
     }*/
 
-    //sortiere höchste valuation für jeweiliges gut raus
+    /*//sortiere höchste valuation für jeweiliges gut raus
     cout << "\n";
     cout << "Höchste Valuation pro Gut (Achtung: Bidder werden ab 0 gezählt) \n ";
 
@@ -347,8 +356,8 @@ int main() {
 
     vector<vector<int>> up_integral(num_bidders, vector<int>(num_goods));
     //Initialisiere mit integraler Allokation
-    /*up_integral := die integralen Ergebnisse, nachdem die fraktionalen Teile den jeweiligen Biddern
-    zugeteilt wurden */
+    *//*up_integral := die integralen Ergebnisse, nachdem die fraktionalen Teile den jeweiligen Biddern
+    zugeteilt wurden *//*
     for (int i = 0; i < num_bidders; ++i) {
         for (int j = 0; j < num_goods; ++j) {
             up_integral[i][j] = floor(20 * (graph[i][j]));
@@ -357,7 +366,7 @@ int main() {
     for (int j = 0; j < num_goods; ++j) {
         up_integral[vecPair[j].second][j] += fracVec[j];
     }
-
+*/
 
 
     /*cout << "\n";
@@ -371,26 +380,30 @@ int main() {
     }
     cout << "\n";*/
 
-   /* cout << "\n";
+    cout << "\n";
     cout << "fractional Allokation/Kantengewicht: \n";
-    *//*** print graph ***//*
+    //*** print graph ***
+    double frak_alloc = 0.0;
+    double anteil_bid = 0.0;
     for (int i = 0; i < num_bidders; ++i) {
         for (int j = 0; j < num_goods; ++j) {
-            if ((20 * (graph[i][j])) < 0.001) {
+            if ((20 * (graph[i][j])) < (10^(-3))) {
                 graph[i][j] = 0;
             }
-
-            cout << std::setprecision(pre) << (20 * (graph[i][j]) - floor(20 * (graph[i][j]))) << " ";
+            frak_alloc = (20 * (graph[i][j]) - floor(20 * (graph[i][j])));
+            //anteil_bid =
+            //cout << std::setprecision(pre) << frak_alloc << " ";
 
         }
         cout << " | ";
+        frak_alloc = 0.0;
     }
-    cout << "\n";*/
-
     cout << "\n";
+
+    /*cout << "\n";
     cout << "\n";
     cout << "Optimale Allokation: \n";
-    /*** print graph ***/
+    *//*** print graph ***//*
     for (int i = 0; i < num_bidders; ++i) {
         for (int j = 0; j < num_goods; ++j) {
             if ((20 * (graph[i][j])) < 0.001) {
@@ -411,7 +424,7 @@ int main() {
         }
         cout << " | ";
     }
-    cout << endl;
+    cout << endl;*/
 
 
     /*cout << " \n";
@@ -457,7 +470,7 @@ int main() {
     }*/
 
 
-    //max_utility der gerundeten Alloks berechnen
+    /*//max_utility der gerundeten Alloks berechnen
     cout << "\n";
     cout << "\n";
     cout << "\n";
@@ -472,7 +485,7 @@ int main() {
         cout << rd_util << "| ";
         cout << max_utility[i] << " \n";
         rd_util = 0.0;
-    }
+    }*/
 
    /* cout << "\n";
     cout << "Differenz Allokationen (optimal/gerundet): \n";
@@ -493,7 +506,7 @@ int main() {
     //max_utility[i] = optimal
     //rd_max_utility[i] = gerundet
 
-    ofstream myfile;
+    /*fstream myfile;
     myfile.open ("markets.txt", std::ios_base::app);
     cout << "\n";
     for (int i = 0; i < num_bidders; i++) {
@@ -515,7 +528,7 @@ int main() {
     }
     myfile << endl;
     myfile.close();
-
+*/
 
 
 
