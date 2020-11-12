@@ -228,10 +228,14 @@ int main() {
 
     double frac = 0.0;
     cout << "Summe der fraktionalen Teile Gut 1 bis " << num_goods << ": \n";
-    //vector<int> fracVec(num_goods);
+//vector<int> fracVec(num_goods);
     for (int j = 0; j < num_goods; ++j) {
         for (int i = 0; i < num_bidders; ++i) {
-            frac = frac + (20 * (graph[i][j])) - (floor(20 * (graph[i][j])));
+            if(20*graph[i][j] < 0.01) graph[i][j] = 0;
+            double frac_update = (20 *(graph[i][j])) - (floor(20 *(graph[i][j])));
+            if(frac_update > 0.01 && frac_update < 0.99) {
+                frac = frac + frac_update;
+            }
         }
         if (frac < 0.01) {
             frac = 0;
@@ -251,26 +255,27 @@ int main() {
     for (int j = 0; j < num_goods; ++j) {
         cout <<"## "<< " Gut " << j << " ## \n";
         for (int i = 0; i < num_bidders; ++i) {
-            /*if((20*graph[i][j]) < 0.01){
+            //vermeiden damit Zahlen wie 7.94e-10
+            if((20*graph[i][j]) < 0.01) {
                 graph[i][j] = 0;
-            }*/
+             }
             if(i == (num_bidders-1)){
-                cout <<" "<< "Bidder " << i << " : " << (20 * (graph[i][j]) - floor(20 * (graph[i][j])));
+                cout <<" "<< "Bidder " << i << " : " << (20 *(graph[i][j]) - floor(20 *(graph[i][j])));
                 break;
             }
-            cout << " "<< "Bidder " << i << " : "<< (20 * (graph[i][j]) - floor(20 * (graph[i][j]))) << " | ";
+            cout << " "<< "Bidder " << i << " : "<< (20 *(graph[i][j]) - floor(20 *(graph[i][j]))) << " | ";
         }
         cout << endl;
     }
 
 
-        //print für jeden bidder und jede iteration dessen Allokation des Guts 1 bis n
+//print für jeden bidder und jede iteration dessen Allokation des Guts 1 bis n
 
 
 
-        return 0;
+    return 0;
 
-    }
+}
 
 
 
