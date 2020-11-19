@@ -8,6 +8,7 @@
 #include <iomanip>
 #include <cmath>
 #include <stdlib.h>
+#include <time.h>
 
 //Proportional Response Dynamics
 
@@ -191,7 +192,7 @@ int main() {
     cout << "Fraktionales/optimales Ergebnis: ";
     cout << endl;
     for (int i = 0; i < num_bidders; ++i) {
-        cout << "Max Utility: " << setprecision(pre) << max_utility[i] << endl;
+        cout << "Max Utility des Bidders " << i << " : " << setprecision(pre) << max_utility[i] << endl;
     }
 
 }
@@ -215,33 +216,86 @@ int main() {
     //fraktionale allokation von Bieter i und gut j
     vector<vector<double>> fractional_allocations(num_bidders, vector<double>(num_goods, 0.0));
 
-    //summe fraktionale Teile pro Gut
+    //summe fraktionale Teile pro Gut über alle bidder
     vector<double> sum_frac(num_goods, 0.0);
 
+    //Bieter 1 von Gut 1: 0,3 Bieter 2 v G1: 0,2 Bieter 3 v G1: 0,5
+    //dann partial_sums = {0.3, 0.5, 1.0}
+    //partial sums pro Gut (über alle Bidder)
+    vector<double> partial_sums(num_bidders, 0.0);
 
+
+    //die fraktionalen allokationen aus graph[i][j] werden auf fractional_allocations[i][j] addiert
     for (int i = 0; i < num_bidders; ++i) {
         for (int j = 0; j < num_goods; ++j) {
             if (20 * graph[i][j] < 0.01) graph[i][j] = 0;
-            fractional_allocations[i][j] = ((20 * (graph[i][j])) - (floor(20 * (graph[i][j]))));
-            cout << "Bidder " << i << " has " << fractional_allocations[i][j] << " of good " << j << "\n";
+                    fractional_allocations[i][j] = ((20 * (graph[i][j])) - (floor(20 * (graph[i][j]))));
+           //cout << "Bidder " << i << " has " << fractional_allocations[i][j] << " of good " << j << "\n";
         }
     }
 
-
-    for (int i = 0; i < num_bidders; ++i) {
-        for (int j = 0; j < num_goods; ++j) {
-            sum_frac[j] = 0.0;
-            if (20 * graph[i][j] < 0.01) graph[i][j] = 0;
-            sum_frac[j] = sum_frac[j] + fractional_allocations[i][j];
-        }
+// pro bidder berechne ich die summe der fraktionalen Teile pro (jeweils ein) gut j; wird für partial sums benötigt;
+//sum_frac ist damit die summe der fraktionalen Teile (über alle Bidder) eines guts j
+    for (int j = 0; j < num_goods; ++j) {
         for (int i = 0; i < num_bidders; ++i) {
-            for (int j = 0; j < num_goods; ++j) {
-                cout << "Bidder " << i << " hat in Summe " << sum_frac[j] << " fraktionale Einheiten des Guts " << j
-                     << "\n";
+            if (20 * graph[i][j] < 0.01) graph[i][j] = 0;
+            //jeder fraktionale Teil eines jeden bidders i des spezifischen gutes j wird aufaddiert:
+            if (fractional_allocations[i][j] > 0.01 && fractional_allocations[i][j] < 0.99) {
+                sum_frac[j] = sum_frac[j] + fractional_allocations[i][j];
             }
         }
+        //cout << "Gut " << j << " hat in Summe " << sum_frac[j] << " fraktionale Einheiten" << "\n";
+        //muss nullgesetzt werden (da innere schleife)
+        sum_frac[i] = 0;
     }
 
+
+    //zuweisung der fraktionalen Teile auf den (per rndm number) gezogenen Bidder
+    for (int j = 0; j < num_goods; ++j) {
+        for (i = 0; i < num_bidders; ++i) {
+            //frac[j] = summe fraktionale teile Gut j. frac[j] => kein fraktionaler teil
+            //Wird gut fraktional aufgeteilt? Wenn nicht -> continue
+            if(sum_frac[i] == 0) continue;
+        }
+        //intitialisierung der partial sums mit den fraktionalen werten (nur so ist rekursion in for schleife über partial sums möglich
+        partial_sums[0] = fractional_allocations[0][j];
+
+        //startet bei i=1 (wegen rekursion)
+        for (int i = 1; i < num_bidders; ++i) {
+            partial_sums[i] = partial_sums[i - 1] + fractional_allocations[i][j];
+        }
+        for (int i = 0; i < num_bidders; ++i) {
+            //sum_frac[j] is die summe der fraktionalen Allokationen pro gut j über alle Bidder i
+            partial_sums[i] /= sum_frac[j];
+        }
+
+        //zufallszahl zw. 0 und 1 (double)
+        //srand(time(NULL)); funktioniert nicht so gut
+
+        double rdm_number = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+
+        for (int i = 0; i < num_bidders; ++i) {
+            //wenn zufallszahl <= partial_sums[i] => bieter i bekommt das fraktionale gut zugewiesen und break;
+            if (rdm_number <= partial_sums[i]) {
+                graph[i][j] = sum_frac[j] + graph[i][j];
+               // break;
+            }
+            cout << "Bidder " << i << " bekommt insgesamt " << graph[i][j] << " Teile des Guts " << j << "\n";
+        }
+    }
+
+    //die neuen/upgedateten/update max_utils berechnen und ausdrucken
+
+    //rd_max_utility
+    double rd_util = 0.0;
+
+    /*for (int i = 0; i < num_bidders; ++i) {
+        for (int j = 0; j < num_goods; ++j) {
+            rd_util = rd_util + (((graph[i][j]) / 20.0) * bidders[i].valuation[j]);
+        }
+        cout << rd_util << " | ";
+    }
+*/
 
 
 
