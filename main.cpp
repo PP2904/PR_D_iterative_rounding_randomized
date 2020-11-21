@@ -215,6 +215,9 @@ int main() {
 
     //fraktionale allokation von Bieter i und gut j
     vector<vector<double>> fractional_allocations(num_bidders, vector<double>(num_goods, 0.0));
+    vector<vector<double>> integral_allocations(num_bidders, vector<double>(num_goods, 0.0));
+    vector<vector<double>> final_allocations(num_bidders, vector<double>(num_goods, 0.0));
+
 
     //summe fraktionale Teile pro Gut über alle bidder
     vector<double> sum_frac(num_goods, 0.0);
@@ -228,8 +231,13 @@ int main() {
     //die fraktionalen allokationen aus graph[i][j] werden auf fractional_allocations[i][j] addiert
     for (int i = 0; i < num_bidders; ++i) {
         for (int j = 0; j < num_goods; ++j) {
-            if (20 * graph[i][j] < 0.01) graph[i][j] = 0;
-                    fractional_allocations[i][j] = ((20 * (graph[i][j])) - (floor(20 * (graph[i][j]))));
+            fractional_allocations[i][j] = ((20 * (graph[i][j])) - (floor(20 * (graph[i][j]))));
+            if(fractional_allocations[i][j] < 0.01 || fractional_allocations[i][j] > 0.99) {
+                fractional_allocations[i][j] = 0;
+            }
+            //fractional_allocation[i][j]+integral_allocation[i][j] = graph[i][j]
+            integral_allocations[i][j] = round(20*graph[i][j] - fractional_allocations[i][j]);
+            final_allocations[i][j] = integral_allocations[i][j];
            //cout << "Bidder " << i << " has " << fractional_allocations[i][j] << " of good " << j << "\n";
         }
     }
@@ -238,25 +246,19 @@ int main() {
 //sum_frac ist damit die summe der fraktionalen Teile (über alle Bidder) eines guts j
     for (int j = 0; j < num_goods; ++j) {
         for (int i = 0; i < num_bidders; ++i) {
-            if (20 * graph[i][j] < 0.01) graph[i][j] = 0;
             //jeder fraktionale Teil eines jeden bidders i des spezifischen gutes j wird aufaddiert:
-            if (fractional_allocations[i][j] > 0.01 && fractional_allocations[i][j] < 0.99) {
-                sum_frac[j] = sum_frac[j] + fractional_allocations[i][j];
-            }
+            sum_frac[j] = sum_frac[j] + fractional_allocations[i][j];
+
         }
         //cout << "Gut " << j << " hat in Summe " << sum_frac[j] << " fraktionale Einheiten" << "\n";
-        //muss nullgesetzt werden (da innere schleife)
-        sum_frac[i] = 0;
     }
 
 
     //zuweisung der fraktionalen Teile auf den (per rndm number) gezogenen Bidder
     for (int j = 0; j < num_goods; ++j) {
-        for (i = 0; i < num_bidders; ++i) {
-            //frac[j] = summe fraktionale teile Gut j. frac[j] => kein fraktionaler teil
-            //Wird gut fraktional aufgeteilt? Wenn nicht -> continue
-            if(sum_frac[i] == 0) continue;
-        }
+        //sum_frac[j] = summe fraktionale teile Gut j. sum_frac[j]=0 => kein fraktionaler teil
+        //Wird gut fraktional aufgeteilt? Wenn nicht -> continue
+        if(sum_frac[j] < 0.01) continue;
         //intitialisierung der partial sums mit den fraktionalen werten (nur so ist rekursion in for schleife über partial sums möglich
         partial_sums[0] = fractional_allocations[0][j];
 
@@ -277,12 +279,47 @@ int main() {
         for (int i = 0; i < num_bidders; ++i) {
             //wenn zufallszahl <= partial_sums[i] => bieter i bekommt das fraktionale gut zugewiesen und break;
             if (rdm_number <= partial_sums[i]) {
-                graph[i][j] = sum_frac[j] + graph[i][j];
-               // break;
+                final_allocations[i][j] += sum_frac[j];
+                break;
             }
-            cout << "Bidder " << i << " bekommt insgesamt " << graph[i][j] << " Teile des Guts " << j << "\n";
         }
     }
+
+    cout << "Original allocations:" << endl;
+    for(int i=0; i < num_bidders; ++i) {
+        for(int j=0; j < num_goods; ++j) {
+            cout << 20*graph[i][j] << " ";
+        }
+        cout << "|";
+    }
+    cout << endl;
+
+    cout << "Fractional allocations:" << endl;
+    for(int i=0; i < num_bidders; ++i) {
+        for(int j=0; j < num_goods; ++j) {
+            cout << fractional_allocations[i][j] << " ";
+        }
+        cout << "|";
+    }
+    cout << endl;
+
+    cout << "Integral allocations:" << endl;
+    for(int i=0; i < num_bidders; ++i) {
+        for(int j=0; j < num_goods; ++j) {
+            cout << integral_allocations[i][j] << " ";
+        }
+        cout << "|";
+    }
+    cout << endl;
+
+    cout << "Randomized rounding allocations: " << endl;
+    for(int i=0; i < num_bidders; ++i) {
+        for(int j=0; j < num_goods; ++j) {
+            cout << final_allocations[i][j] << " ";
+        }
+        cout << "|";
+    }
+    cout << endl;
 
     //die neuen/upgedateten/update max_utils berechnen und ausdrucken
 
