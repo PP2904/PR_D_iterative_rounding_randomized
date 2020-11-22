@@ -348,8 +348,12 @@ int main() {
          * HIER WIRD IN DIE FILE GESCHRIEBEN
          */
 
+
+    ofstream myfile2;
+    myfile2.open (filename + "_table" + ".txt", std::ios_base::app);
+
     ofstream myfile;
-    myfile.open (filename, std::ios_base::app);
+    myfile.open (filename + ".txt", std::ios_base::app);
     myfile << "Number Goods: " << num_goods << ", " << " Number Bidders: " << num_bidders << ", "  << " Number Iterations: " << num_iterations << "\n";
     myfile << "Original allocs: " << "\n";
     for (int i = 0; i < num_bidders; ++i) {
@@ -374,6 +378,7 @@ int main() {
     cout << "\n";
     cout << "max_utility for rounded alloc | max_utility: | integrality gap: \n";
     myfile << "max_utility for rounded alloc | max_utility: | integrality gap: \n";
+    myfile2 << ", \n";
 
 
     double rd_util = 0.0;
@@ -392,10 +397,12 @@ int main() {
         rd_max_utility[i] = rd_util;
         cout << rd_util << " | ";
         myfile << rd_util << " | ";
+        myfile2 << rd_util << " | ";
 
         //max_utility:
         cout << std::setprecision(pre)  << max_utility[i] << " | ";
         myfile << std::setprecision(pre)  << max_utility[i] << " | ";
+        myfile2 << std::setprecision(pre)  << max_utility[i] << "\n";
 
         //integrality gap:
         if(rd_max_utility[i] <= max_utility[i]){
