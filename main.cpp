@@ -86,6 +86,12 @@ int main() {
     cout << "Number Iterations: ";
     cin >> num_iterations;
 
+    //Name der file, in die geschrieben wird
+    string filename;
+    cout << "Welchen Namen soll die File haben? ";
+    cin >> filename;
+
+
     //num_iter_exp = Anzahl Ausführungen des Gesamtexperiments
     int num_iter_exp;
     cout << "Number Iterations Experiment: ";
@@ -337,6 +343,10 @@ int main() {
             cout << "|";
         }
         cout << endl;
+
+        /*
+         * HIER WIRD IN DIE FILE GESCHRIEBEN
+         */
 
     ofstream myfile;
     myfile.open (filename, std::ios_base::app);
