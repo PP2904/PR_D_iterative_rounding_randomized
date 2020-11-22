@@ -372,24 +372,53 @@ int main() {
 
     //max_utility der gerundeten Alloks berechnen
     cout << "\n";
-    cout << "max_utility for rounded alloc | max_utility: \n";
-    myfile << "max_utility for rounded alloc | max_utility: \n";
+    cout << "max_utility for rounded alloc | max_utility: | integrality gap: \n";
+    myfile << "max_utility for rounded alloc | max_utility: | integrality gap: \n";
+
+
     double rd_util = 0.0;
     vector<double> rd_max_utility(num_bidders);
+
+    double int_gap = 0.0;
+    double print_int_gap = 0.0;
+    double avg_int_gap = 0.0;
+
+
     for (int i = 0; i < num_bidders; ++i) {
         for (int j = 0; j < num_goods; ++j) {
             rd_util = rd_util + (((final_allocations[i][j]) / 20.0) * bidders[i].valuation[j]);
         }
+        //max_utility for rounded alloc
         rd_max_utility[i] = rd_util;
         cout << rd_util << " | ";
         myfile << rd_util << " | ";
-        cout << std::setprecision(pre)  << max_utility[i] << "\n";
-        myfile << std::setprecision(pre)  << max_utility[i] << "\n";
+
+        //max_utility:
+        cout << std::setprecision(pre)  << max_utility[i] << " | ";
+        myfile << std::setprecision(pre)  << max_utility[i] << " | ";
+
+        //integrality gap:
+        if(rd_max_utility[i] <= max_utility[i]){
+            cout << std::setprecision(pre)  << rd_max_utility[i]/max_utility[i] << "\n";
+            myfile << std::setprecision(pre)  << rd_max_utility[i]/max_utility[i] << "\n";
+            int_gap = int_gap + (rd_max_utility[i]/max_utility[i]);
+        }
+        if(rd_max_utility[i] > max_utility[i]){
+            cout << std::setprecision(pre)  << max_utility[i]/rd_max_utility[i] << "\n";
+            myfile << std::setprecision(pre)  << max_utility[i]/rd_max_utility[i] << "\n";
+            int_gap = int_gap + (max_utility[i]/rd_max_utility[i]);
+        }
+        print_int_gap = int_gap;
+        if(i==(num_bidders-1)){
+            avg_int_gap = print_int_gap; // /num_bidders;
+        }
+        int_gap = 0.0;
         rd_util = 0.0;
     }
+    myfile << "Integrality gap is in average: " << avg_int_gap;
     myfile << "\n";
-
-
+    myfile << "\n";
+    myfile << "\n";
 
 
     }
