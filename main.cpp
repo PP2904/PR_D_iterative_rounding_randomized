@@ -8,6 +8,7 @@
 #include <iomanip>
 #include <cmath>
 #include <stdlib.h>
+#include <ctime>
 
 //Proportional Response Dynamics
 
@@ -48,6 +49,8 @@ int random_number(int lb, int ub) {
 
 //Main method
 int main() {
+
+    auto start = std::chrono::system_clock::now();
 
     /*
      *
@@ -98,7 +101,7 @@ int main() {
     cin >> num_iter_exp;
 
     //FOR SCHLEIFE FÜR ANZAHL WIEDERHOLUNGEN DES GESAMTEXPERIMENTS
-    for(int iter = 0; iter <= num_iter_exp; iter ++){
+    for(int iter = 1; iter < num_iter_exp; iter ++){
 
 
      /*
@@ -429,6 +432,14 @@ int main() {
 
 
     }
+
+    auto end = std::chrono::system_clock::now();
+
+    std::chrono::duration<double> elapsed_seconds = end-start;
+    std::time_t end_time = std::chrono::system_clock::to_time_t(end);
+
+    std::cout << "finished computation at " << std::ctime(&end_time)
+              << "elapsed time: " << elapsed_seconds.count() << "s\n";
 
     return 0;
 }
