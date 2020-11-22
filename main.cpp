@@ -8,7 +8,6 @@
 #include <iomanip>
 #include <cmath>
 #include <stdlib.h>
-#include <time.h>
 
 //Proportional Response Dynamics
 
@@ -47,28 +46,25 @@ int random_number(int lb, int ub) {
     return (engine() % (ub - lb + 1)) + lb;
 }
 
-/***
- *
- * Main method
- *
- ***/
-
+//Main method
 int main() {
 
-    /*** NUMBER OF GOODs
-     * BIDDERS
-     * AND ITERATIONS
+    /*
      *
-     * SET PROPERTIES ANFANG
      *
-     ***/
-
+     * HIER GEBEN WIR DIE EIGENSCHAFTEN DES EXPERIMENTS AN
+     *
+     *
+     */
 
     //generate #goods
     int num_goods;
     cout << "Number Goods: ";
     cin >> num_goods;
     //int num_goods = 6;
+
+
+    //vector<Bidder> bidders(5);
 
     //multiplier for valuation
     double i = 1.;
@@ -79,32 +75,33 @@ int main() {
     cin >> num_bidders;
     //int num_bidders = 10;
 
-    //exception_exit
-    if (num_bidders > num_goods) {
-        printf("Error number bidders larger than number goods");
-        exit(EXIT_FAILURE);
+    if (num_bidders > num_goods)
+    {
+        printf ("Error number bidders larger than number goods");
+        exit (EXIT_FAILURE);
     }
 
+    //num_iterations = Anzahl der Iterationen des Handels auf dem FM
     int num_iterations;
     cout << "Number Iterations: ";
     cin >> num_iterations;
-    //int num_iterations = 2000;
 
-    /***
-    * SET PROPERTIES ENDE
-    ***/
+    //num_iter_exp = Anzahl Ausführungen des Gesamtexperiments
+    int num_iter_exp;
+    cout << "Number Iterations Experiment: ";
+    cin >> num_iter_exp;
 
-    ////////////////////////////////////////////////////////
+    //FOR SCHLEIFE FÜR ANZAHL WIEDERHOLUNGEN DES GESAMTEXPERIMENTS
+    for(int iter = 0; iter <= num_iter_exp; iter ++){
 
-    /***
-     * Proportional Response Dynamics
-     * Algorithm
+
+     /*
      *
-     * ANFANG
-     ****/
-
-    //set precision
-    int pre = 3;
+     * BIS HIER GEBEN WIR DIE EIGENSCHAFTEN DES EXPERIMENTS AN
+     *
+     *
+     *
+     */
 
     vector<Bidder> bidders(num_bidders);
 
@@ -116,6 +113,8 @@ int main() {
         bidders[k].spent.resize(num_goods, bidders[0].budget / (double) num_goods);
     }
 
+
+    //int num_iterations = 2000;
     vector<double> prices(num_goods);
     for (int it = 0; it < num_iterations; ++it) {
 
@@ -145,50 +144,49 @@ int main() {
             }
         }
 
-        //print für jeden bidder und jede iteration dessen Allokation des Guts 1 bis n
+        //print für jeden bidder und jede iteration dessen ???
         cout << "Iteration " << it << ":\n";
         for (int i = 0; i < bidders.size(); ++i) {
             cout << "Bidder " << i << ": " << bidders[i] << endl;
         }
         cout << endl;
 
+        //writing to txt file
 
-        //von Max utility und utility (im equilibrium sind diese gleich)
-
-        vector<double> utility(num_bidders);
-        vector<double> max_utility(num_bidders);
-        for (int b = 0; b < num_bidders; ++b) {
-            max_utility[b] = 0;
-            for (int i = 0; i < num_goods; ++i) {
-                utility[b] += bidders[b].valuation[i] * bidders[b].spent[i] / prices[i]; //Aufpassen wenn prices[i] = 0!
-                if (max_utility[b] < bidders[b].valuation[i] / prices[i]) {
-                    max_utility[b] = bidders[b].valuation[i] / prices[i];
-                }
-            }
-
-            max_utility[b] *= bidders[b].budget;
+        /*ofstream myfile;
+        myfile.open ("markets.txt", std::ios_base::app);
+        myfile << "Iteration " << it << ":\n";
+        for (int i = 0; i < bidders.size(); ++i) {
+            myfile << "Bidder " << i << ": " << bidders[i] << endl;
         }
-
-        // save utility from start
-        vector<double> val_start(num_bidders);
-        for (int b = 0; b < num_bidders; ++b) {
-            for (int i = 0; i < num_goods; ++i) {
-                val_start[b] = bidders[b].valuation[i];
-            }
-        }
-
-
-
-        /***
-        * Proportional Response Dynamics
-        * Algorithm
-        *
-        * ENDE
-        *
-        ***/
-
-
+        myfile << endl;*/
     }
+
+    //von Max utility und utility (im equilibrium sind diese gleich)
+
+    vector<double> utility(num_bidders);
+    vector<double> max_utility(num_bidders);
+    for (int b = 0; b < num_bidders; ++b) {
+        max_utility[b] = 0;
+        for (int i = 0; i < num_goods; ++i) {
+            utility[b] += bidders[b].valuation[i] * bidders[b].spent[i] / prices[i]; //Aufpassen wenn prices[i] = 0!
+            if (max_utility[b] < bidders[b].valuation[i] / prices[i]) {
+                max_utility[b] = bidders[b].valuation[i] / prices[i];
+            }
+        }
+
+        max_utility[b] *= bidders[b].budget;
+    }
+
+    // save utility from start
+    vector<double> val_start(num_bidders);
+    for (int b = 0; b < num_bidders; ++b) {
+        for (int i = 0; i < num_goods; ++i) {
+            val_start[b] = bidders[b].valuation[i];
+        }
+    }
+
+
 
     //Optimales Ergebnis//
 
@@ -201,10 +199,21 @@ int main() {
         for (int i = 0; i < bidders.size(); ++i) {
             demand += bidders[i].spent[j] / prices[j];
         }
+        //cout << "Demand: " << demand << endl;
+        //cout << "Supply: " << prices[j] << endl;
+    }
+
+    //set precision
+    int pre = 3;
 
 
+    //macht das Sinn? Summe der Max_utils?
+    //double max_util = 0;
 
-        //graph ist der graph mit den Einträgen, welche die Kantengewichte (=Alloks) sind
+    for (int i = 0; i < num_bidders; ++i) {
+        cout << "Max Utility: " << std::setprecision(pre) << max_utility[i] << endl;
+        //max_util = max_util + max_utility[i];
+    }
 
         /*** Write allocations to graph ***/
         vector<vector<double>> graph(num_bidders, vector<double>(num_goods));
@@ -293,6 +302,9 @@ int main() {
         cout << "Original allocations:" << endl;
         for (int i = 0; i < num_bidders; ++i) {
             for (int j = 0; j < num_goods; ++j) {
+                    if((20 * graph[i][j]) < 0.01) {
+                        graph[i][j] = 0;
+                    }
                 cout << 20 * graph[i][j] << " ";
             }
             cout << "|";
@@ -326,27 +338,55 @@ int main() {
         }
         cout << endl;
 
-        //die neuen/upgedateten/update max_utils berechnen und ausdrucken
-
-        //rd_max_utility
-        double rd_util = 0.0;
-
-        /*for (int i = 0; i < num_bidders; ++i) {
-            for (int j = 0; j < num_goods; ++j) {
-                rd_util = rd_util + (((graph[i][j]) / 20.0) * bidders[i].valuation[j]);
-            }
-            cout << rd_util << " | ";
+    ofstream myfile;
+    myfile.open (filename, std::ios_base::app);
+    myfile << "Number Goods: " << num_goods << ", " << " Number Bidders: " << num_bidders << ", "  << " Number Iterations: " << num_iterations << "\n";
+    myfile << "Original allocs: " << "\n";
+    for (int i = 0; i < num_bidders; ++i) {
+        for (int j = 0; j < num_goods; ++j) {
+            myfile << 20 * graph[i][j] << " ";
         }
-    */
+        myfile << "|";
+    }
+    myfile << "\n";
+    myfile << "fractional allocs: " << "\n";
+    for (int i = 0; i < num_bidders; ++i) {
+        for (int j = 0; j < num_goods; ++j) {
+            myfile << final_allocations[i][j] << " ";
+        }
+        myfile << "|";
+    }
+    myfile << "\n";
+
+    //die neuen/upgedateten/update max_utils berechnen und ausdrucken
+
+    //max_utility der gerundeten Alloks berechnen
+    cout << "\n";
+    cout << "max_utility for rounded alloc | max_utility: \n";
+    myfile << "max_utility for rounded alloc | max_utility: \n";
+    double rd_util = 0.0;
+    vector<double> rd_max_utility(num_bidders);
+    for (int i = 0; i < num_bidders; ++i) {
+        for (int j = 0; j < num_goods; ++j) {
+            rd_util = rd_util + (((final_allocations[i][j]) / 20.0) * bidders[i].valuation[j]);
+        }
+        rd_max_utility[i] = rd_util;
+        cout << rd_util << " | ";
+        myfile << rd_util << " | ";
+        cout << std::setprecision(pre)  << max_utility[i] << "\n";
+        myfile << std::setprecision(pre)  << max_utility[i] << "\n";
+        rd_util = 0.0;
+    }
+    myfile << "\n";
 
 
 
-
-
-        return 0;
 
     }
+
+    return 0;
 }
+
 
 
 
