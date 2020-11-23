@@ -50,6 +50,8 @@ int random_number(int lb, int ub) {
 //Main method
 int main() {
 
+
+
     auto start = std::chrono::system_clock::now();
 
     /*
@@ -101,7 +103,7 @@ int main() {
     cin >> num_iter_exp;
 
     //FOR SCHLEIFE FÜR ANZAHL WIEDERHOLUNGEN DES GESAMTEXPERIMENTS
-    for(int iter = 1; iter < num_iter_exp; iter ++){
+    for(int iter = 0; iter < num_iter_exp; iter ++){
 
 
      /*
@@ -351,12 +353,14 @@ int main() {
          * HIER WIRD IN DIE FILE GESCHRIEBEN
          */
 
+        ofstream myfile;
+        ofstream myfile2;
 
-    ofstream myfile2;
+
     myfile2.open (filename + "_table" + ".txt", std::ios_base::app);
-
-    ofstream myfile;
     myfile.open (filename + ".txt", std::ios_base::app);
+
+
     myfile << "Number Goods: " << num_goods << ", " << " Number Bidders: " << num_bidders << ", "  << " Number Iterations: " << num_iterations << "\n";
     myfile << "Original allocs: " << "\n";
     for (int i = 0; i < num_bidders; ++i) {
@@ -433,6 +437,8 @@ int main() {
 
     }
 
+
+
     auto end = std::chrono::system_clock::now();
 
     std::chrono::duration<double> elapsed_seconds = end-start;
@@ -440,6 +446,7 @@ int main() {
 
     std::cout << "finished computation at " << std::ctime(&end_time)
               << "elapsed time: " << elapsed_seconds.count() << "s\n";
+
 
     return 0;
 }
