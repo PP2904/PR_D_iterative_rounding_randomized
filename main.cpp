@@ -52,7 +52,7 @@ int main() {
 
 
 
-    auto start = std::chrono::system_clock::now();
+
 
     /*
      *
@@ -62,12 +62,25 @@ int main() {
      *
      */
 
+
+    //+++++++++++++++++++++++++++++++++++++++++++++++
+
+    //hard gecoded:
+
+    /*int num_goods = 40;
+
+    int num_bidders = 10;
+
+    int num_iterations = 100;
+
+    int num_iter_exp = 1;*/
+
+    //+++++++++++++++++++++++++++++++++++++++++++++++
+
     //generate #goods
     int num_goods;
     cout << "Number Goods: ";
     cin >> num_goods;
-    //int num_goods = 6;
-
 
     //vector<Bidder> bidders(5);
 
@@ -78,49 +91,53 @@ int main() {
     int num_bidders;
     cout << "Number Bidders: ";
     cin >> num_bidders;
-    //int num_bidders = 10;
 
-    if (num_bidders > num_goods)
-    {
-        printf ("Error number bidders larger than number goods");
-        exit (EXIT_FAILURE);
-    }
 
     //num_iterations = Anzahl der Iterationen des Handels auf dem FM
     int num_iterations;
     cout << "Number Iterations: ";
     cin >> num_iterations;
 
-    //Name der file, in die geschrieben wird
+
+  /*  //Name der file, in die geschrieben wird
     string filename;
     cout << "Welchen Namen soll die File haben? ";
     cin >> filename;
-
+*/
 
     //num_iter_exp = Anzahl Ausführungen des Gesamtexperiments
-    int num_iter_exp;
+   int num_iter_exp;
     cout << "Number Iterations Experiment: ";
     cin >> num_iter_exp;
 
+    //+++++++++++++++++++++++++++++++++++++++++++++++
+
+    /*
+    *
+    * BIS HIER GEBEN WIR DIE EIGENSCHAFTEN DES EXPERIMENTS AN
+    *
+    *
+    *
+    */
+
+   /* if (num_bidders > num_goods)
+    {
+        printf ("Error number bidders larger than number goods");
+        exit (EXIT_FAILURE);
+    }*/
+
+    auto start = std::chrono::system_clock::now();
+
     //FOR SCHLEIFE FÜR ANZAHL WIEDERHOLUNGEN DES GESAMTEXPERIMENTS
     for(int iter = 0; iter < num_iter_exp; iter ++){
-
-
-     /*
-     *
-     * BIS HIER GEBEN WIR DIE EIGENSCHAFTEN DES EXPERIMENTS AN
-     *
-     *
-     *
-     */
 
     vector<Bidder> bidders(num_bidders);
 
     for (int k = 0; k < num_bidders; ++k) {
         bidders[k].valuation.resize(num_goods);
         //valuation pro Gut und Bidder
-        for (auto &v: bidders[k].valuation) v = (random_number(0, 11) + random_number(0, 15)) * i;
-        bidders[k].budget = random_number(0, 11) + random_number(0, 31);
+        for (auto &v: bidders[k].valuation) v = (random_number(1, 11) + random_number(1, 15)) * i;
+        bidders[k].budget = random_number(1, 11) + random_number(1, 31);
         bidders[k].spent.resize(num_goods, bidders[0].budget / (double) num_goods);
     }
 
@@ -155,22 +172,13 @@ int main() {
             }
         }
 
-        //print für jeden bidder und jede iteration dessen ???
+        //print für jeden bidder und jede iteration dessen allocation von Gut 0 bis n
         cout << "Iteration " << it << ":\n";
         for (int i = 0; i < bidders.size(); ++i) {
             cout << "Bidder " << i << ": " << bidders[i] << endl;
         }
         cout << endl;
 
-        //writing to txt file
-
-        /*ofstream myfile;
-        myfile.open ("markets.txt", std::ios_base::app);
-        myfile << "Iteration " << it << ":\n";
-        for (int i = 0; i < bidders.size(); ++i) {
-            myfile << "Bidder " << i << ": " << bidders[i] << endl;
-        }
-        myfile << endl;*/
     }
 
     //von Max utility und utility (im equilibrium sind diese gleich)
@@ -180,6 +188,10 @@ int main() {
     for (int b = 0; b < num_bidders; ++b) {
         max_utility[b] = 0;
         for (int i = 0; i < num_goods; ++i) {
+            if(prices[i]==0) {
+                printf ("prices is 0");
+                exit (EXIT_FAILURE);
+            }
             utility[b] += bidders[b].valuation[i] * bidders[b].spent[i] / prices[i]; //Aufpassen wenn prices[i] = 0!
             if (max_utility[b] < bidders[b].valuation[i] / prices[i]) {
                 max_utility[b] = bidders[b].valuation[i] / prices[i];
@@ -218,8 +230,6 @@ int main() {
     int pre = 3;
 
 
-    //macht das Sinn? Summe der Max_utils?
-    //double max_util = 0;
 
     for (int i = 0; i < num_bidders; ++i) {
         cout << "Max Utility: " << std::setprecision(pre) << max_utility[i] << endl;
@@ -230,7 +240,19 @@ int main() {
         vector<vector<double>> graph(num_bidders, vector<double>(num_goods));
         for (int i = 0; i < num_bidders; ++i) {
             for (int j = 0; j < num_goods; ++j) {
-                graph[i][j] = bidders[i].spent[j] / prices[j];
+                graph[i][j] = bidders[i].spent[j] / prices[j]; //bidders.spent = nan?
+                if(isnan(graph[i][j])) {
+                    graph[i][j] = 0.0000001;
+                }
+
+
+                //checken auf nan
+                if(isnan(graph[i][j])) {
+                    printf ("graph value is nan");
+                    exit (EXIT_FAILURE);
+                }
+
+
             }
         }
 
@@ -353,39 +375,22 @@ int main() {
          * HIER WIRD IN DIE FILE GESCHRIEBEN
          */
 
-        ofstream myfile;
+        //ofstream myfile;
         ofstream myfile2;
 
 
-    myfile2.open (filename + "_table" + ".txt", std::ios_base::app);
-    myfile.open (filename + ".txt", std::ios_base::app);
+    myfile2.open ("results.txt", std::ios_base::app);
+        myfile2 << "max_utility for rounded alloc | max_utility" << "\n";
+        myfile2 << "Number Goods: " << num_goods << ", " << " Number Bidders: " << num_bidders << ", "  << " Number Iterations: " << num_iterations << "\n";
 
-
-    myfile << "Number Goods: " << num_goods << ", " << " Number Bidders: " << num_bidders << ", "  << " Number Iterations: " << num_iterations << "\n";
-    myfile << "Original allocs: " << "\n";
-    for (int i = 0; i < num_bidders; ++i) {
-        for (int j = 0; j < num_goods; ++j) {
-            myfile << 20 * graph[i][j] << " ";
-        }
-        myfile << "|";
-    }
-    myfile << "\n";
-    myfile << "fractional allocs: " << "\n";
-    for (int i = 0; i < num_bidders; ++i) {
-        for (int j = 0; j < num_goods; ++j) {
-            myfile << final_allocations[i][j] << " ";
-        }
-        myfile << "|";
-    }
-    myfile << "\n";
 
     //die neuen/upgedateten/update max_utils berechnen und ausdrucken
 
     //max_utility der gerundeten Alloks berechnen
     cout << "\n";
     cout << "max_utility for rounded alloc | max_utility: | integrality gap: \n";
-    myfile << "max_utility for rounded alloc | max_utility: | integrality gap: \n";
-    myfile2 << ", \n";
+    //myfile << "max_utility for rounded alloc | max_utility: | integrality gap: \n";
+    //myfile2 << ", \n";
 
 
     double rd_util = 0.0;
@@ -403,25 +408,29 @@ int main() {
         //max_utility for rounded alloc
         rd_max_utility[i] = rd_util;
         cout << rd_util << " | ";
-        myfile << rd_util << " | ";
+        //myfile << rd_util << " | ";
         myfile2 << rd_util << " | ";
 
         //max_utility:
         cout << std::setprecision(pre)  << max_utility[i] << " | ";
-        myfile << std::setprecision(pre)  << max_utility[i] << " | ";
+        //myfile << std::setprecision(pre)  << max_utility[i] << " | ";
         myfile2 << std::setprecision(pre)  << max_utility[i] << "\n";
 
         //integrality gap:
-        if(rd_max_utility[i] <= max_utility[i]){
-            cout << std::setprecision(pre)  << rd_max_utility[i]/max_utility[i] << "\n";
-            myfile << std::setprecision(pre)  << rd_max_utility[i]/max_utility[i] << "\n";
-            int_gap = int_gap + (rd_max_utility[i]/max_utility[i]);
+        if(rd_max_utility[i] <= max_utility[i]) {
+            cout << std::setprecision(pre) << rd_max_utility[i] / max_utility[i] << "\n";
+            // myfile << std::setprecision(pre)  << rd_max_utility[i]/max_utility[i] << "\n";
+            int_gap = int_gap + (rd_max_utility[i] / max_utility[i]);
         }
-        if(rd_max_utility[i] > max_utility[i]){
+        //integer sol > optimal sol
+        else{
+            cout << " \n";
+        }
+        /* if(rd_max_utility[i] > max_utility[i]){
             cout << std::setprecision(pre)  << max_utility[i]/rd_max_utility[i] << "\n";
-            myfile << std::setprecision(pre)  << max_utility[i]/rd_max_utility[i] << "\n";
+            //myfile << std::setprecision(pre)  << max_utility[i]/rd_max_utility[i] << "\n";
             int_gap = int_gap + (max_utility[i]/rd_max_utility[i]);
-        }
+            }*/
         print_int_gap = int_gap;
         if(i==(num_bidders-1)){
             avg_int_gap = print_int_gap; // /num_bidders;
@@ -429,10 +438,10 @@ int main() {
         int_gap = 0.0;
         rd_util = 0.0;
     }
-    myfile << "Integrality gap is in average: " << avg_int_gap;
+    /*myfile << "Integrality gap is in average: " << avg_int_gap;
     myfile << "\n";
     myfile << "\n";
-    myfile << "\n";
+    myfile << "\n";*/
 
 
     }
@@ -444,6 +453,7 @@ int main() {
     std::chrono::duration<double> elapsed_seconds = end-start;
     std::time_t end_time = std::chrono::system_clock::to_time_t(end);
 
+    cout << "\n";
     std::cout << "finished computation at " << std::ctime(&end_time)
               << "elapsed time: " << elapsed_seconds.count() << "s\n";
 
