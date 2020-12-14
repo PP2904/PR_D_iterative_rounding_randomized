@@ -98,6 +98,10 @@ int main() {
     cout << "Number Iterations: ";
     cin >> num_iterations;
 
+    double quantItem;
+    cout << "Quantität eines Guts: ";
+    cin >> quantItem;
+
 
   /*  //Name der file, in die geschrieben wird
     string filename;
@@ -278,12 +282,12 @@ int main() {
         //die fraktionalen allokationen aus graph[i][j] werden auf fractional_allocations[i][j] addiert
         for (int i = 0; i < num_bidders; ++i) {
             for (int j = 0; j < num_goods; ++j) {
-                fractional_allocations[i][j] = ((20 * (graph[i][j])) - (floor(20 * (graph[i][j]))));
+                fractional_allocations[i][j] = ((quantItem * (graph[i][j])) - (floor(quantItem * (graph[i][j]))));
                 if (fractional_allocations[i][j] < 0.01 || fractional_allocations[i][j] > 0.99) {
                     fractional_allocations[i][j] = 0;
                 }
                 //fractional_allocation[i][j]+integral_allocation[i][j] = graph[i][j]
-                integral_allocations[i][j] = round(20 * graph[i][j] - fractional_allocations[i][j]);
+                integral_allocations[i][j] = round(quantItem * graph[i][j] - fractional_allocations[i][j]);
                 final_allocations[i][j] = integral_allocations[i][j];
                 //cout << "Bidder " << i << " has " << fractional_allocations[i][j] << " of good " << j << "\n";
             }
@@ -335,10 +339,10 @@ int main() {
         cout << "Original allocations:" << endl;
         for (int i = 0; i < num_bidders; ++i) {
             for (int j = 0; j < num_goods; ++j) {
-                    if((20 * graph[i][j]) < 0.01) {
+                    if((quantItem * graph[i][j]) < 0.01) {
                         graph[i][j] = 0;
                     }
-                cout << 20 * graph[i][j] << " ";
+                cout << quantItem * graph[i][j] << " ";
             }
             cout << "|";
         }
@@ -403,7 +407,7 @@ int main() {
 
     for (int i = 0; i < num_bidders; ++i) {
         for (int j = 0; j < num_goods; ++j) {
-            rd_util = rd_util + (((final_allocations[i][j]) / 20.0) * bidders[i].valuation[j]);
+            rd_util = rd_util + (((final_allocations[i][j]) / quantItem) * bidders[i].valuation[j]);
         }
         //max_utility for rounded alloc
         rd_max_utility[i] = rd_util;
