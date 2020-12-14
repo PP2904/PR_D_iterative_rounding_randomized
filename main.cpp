@@ -98,6 +98,7 @@ int main() {
     cout << "Number Iterations: ";
     cin >> num_iterations;
 
+    //Quantität pro Gut
     double quantItem;
     cout << "Quantität eines Guts: ";
     cin >> quantItem;
@@ -131,6 +132,20 @@ int main() {
     }*/
 
     auto start = std::chrono::system_clock::now();
+
+
+    /*
+         * HIER WIRD IN DIE FILE GESCHRIEBEN
+         */
+
+    //ofstream myfile;
+    ofstream myfile2;
+
+
+    myfile2.open ("results.txt", std::ios_base::app);
+    myfile2 << "max_utility for rounded alloc | max_utility" << "\n";
+    myfile2 << "Number Goods: " << num_goods << ", " << " Number Bidders: " << num_bidders << ", "  << " Number Iterations: " << num_iterations << ", "  << " Quantitaet pro Gut: " << quantItem << "\n";
+
 
     //FOR SCHLEIFE FÜR ANZAHL WIEDERHOLUNGEN DES GESAMTEXPERIMENTS
     for(int iter = 0; iter < num_iter_exp; iter ++){
@@ -375,17 +390,6 @@ int main() {
         }
         cout << endl;
 
-        /*
-         * HIER WIRD IN DIE FILE GESCHRIEBEN
-         */
-
-        //ofstream myfile;
-        ofstream myfile2;
-
-
-    myfile2.open ("results.txt", std::ios_base::app);
-        myfile2 << "max_utility for rounded alloc | max_utility" << "\n";
-        myfile2 << "Number Goods: " << num_goods << ", " << " Number Bidders: " << num_bidders << ", "  << " Number Iterations: " << num_iterations << "\n";
 
 
     //die neuen/upgedateten/update max_utils berechnen und ausdrucken
