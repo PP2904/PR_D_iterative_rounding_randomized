@@ -143,14 +143,18 @@ int main() {
 
 
     myfile2.open ("results.txt", std::ios_base::app);
+    myfile2 << "Number Goods: " << num_goods << ", " << " Number Bidders: " << num_bidders << ", "  << " Number Iterations: " << num_iterations << ", "  << " Quantitaet pro Gut: " << quantItem << ", "  << " Rep experiment: " << num_iter_exp << "\n";
     myfile2 << "max_utility for rounded alloc | max_utility" << "\n";
-    myfile2 << "Number Goods: " << num_goods << ", " << " Number Bidders: " << num_bidders << ", "  << " Number Iterations: " << num_iterations << ", "  << " Quantitaet pro Gut: " << quantItem << "\n";
-
 
     //FOR SCHLEIFE FÜR ANZAHL WIEDERHOLUNGEN DES GESAMTEXPERIMENTS
     for(int iter = 0; iter < num_iter_exp; iter ++){
 
-    vector<Bidder> bidders(num_bidders);
+        myfile2 << "\n";
+        //myfile2 << "Rep " << iter << "\n";
+        myfile2 << "\n";
+
+
+        vector<Bidder> bidders(num_bidders);
 
     for (int k = 0; k < num_bidders; ++k) {
         bidders[k].valuation.resize(num_goods);
