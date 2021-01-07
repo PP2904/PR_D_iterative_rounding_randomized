@@ -208,14 +208,15 @@ int main() {
 
     vector<double> utility(num_bidders);
     vector<double> max_utility(num_bidders);
-    for (int b = 0; b < num_bidders; ++b) {
+
+    /*for (int b = 0; b < num_bidders; ++b) {
         max_utility[b] = 0;
         for (int i = 0; i < num_goods; ++i) {
             if(prices[i]==0) {
                 printf ("prices is 0");
                 exit (EXIT_FAILURE);
             }
-            utility[b] += bidders[b].valuation[i] * bidders[b].spent[i] / prices[i]; //Aufpassen wenn prices[i] = 0!
+            utility[b] += bidders[b].valuation[i] * (bidders[b].spent[i] / prices[i]); //Aufpassen wenn prices[i] = 0!
             if (max_utility[b] < bidders[b].valuation[i] / prices[i]) {
                 max_utility[b] = bidders[b].valuation[i] / prices[i];
             }
@@ -224,14 +225,7 @@ int main() {
         max_utility[b] *= bidders[b].budget;
     }
 
-    // save utility from start
-    vector<double> val_start(num_bidders);
-    for (int b = 0; b < num_bidders; ++b) {
-        for (int i = 0; i < num_goods; ++i) {
-            val_start[b] = bidders[b].valuation[i];
-        }
-    }
-
+*/
 
 
     //Optimales Ergebnis//
@@ -239,31 +233,25 @@ int main() {
     cout << endl;
     cout << "Fraktionales/optimales Ergebnis: ";
     cout << endl;
-    for (int j = 0; j < num_goods; ++j) {
-        double demand = 0;
-        double supply = 0;
-        for (int i = 0; i < bidders.size(); ++i) {
-            demand += bidders[i].spent[j] / prices[j];
-        }
-        //cout << "Demand: " << demand << endl;
-        //cout << "Supply: " << prices[j] << endl;
-    }
 
     //set precision
     int pre = 3;
 
 
+/*
 
     for (int i = 0; i < num_bidders; ++i) {
         cout << "Max Utility: " << std::setprecision(pre) << max_utility[i] << endl;
         //max_util = max_util + max_utility[i];
     }
+*/
 
         /*** Write allocations to graph ***/
         vector<vector<double>> graph(num_bidders, vector<double>(num_goods));
         for (int i = 0; i < num_bidders; ++i) {
             for (int j = 0; j < num_goods; ++j) {
-                graph[i][j] = bidders[i].spent[j] / prices[j]; //bidders.spent = nan?
+                //attention: graph ist der allocation graph (wieviele Teile bekommt der Bidder pro gut j)
+                graph[i][j] = (quantItem * bidders[i].spent[j]) / prices[j]; //bidders.spent = nan?
                 if(isnan(graph[i][j])) {
                     graph[i][j] = 0.0000001;
                 }
@@ -298,15 +286,17 @@ int main() {
         vector<double> partial_sums(num_bidders, 0.0);
 
 
+        //TODO: stimmt quantItem multiplikation hier?  glaube nicht :D
+
         //die fraktionalen allokationen aus graph[i][j] werden auf fractional_allocations[i][j] addiert
         for (int i = 0; i < num_bidders; ++i) {
             for (int j = 0; j < num_goods; ++j) {
-                fractional_allocations[i][j] = ((quantItem * (graph[i][j])) - (floor(quantItem * (graph[i][j]))));
+                fractional_allocations[i][j] = (graph[i][j] - (floor(graph[i][j])));
                 if (fractional_allocations[i][j] < 0.01 || fractional_allocations[i][j] > 0.99) {
                     fractional_allocations[i][j] = 0;
                 }
                 //fractional_allocation[i][j]+integral_allocation[i][j] = graph[i][j]
-                integral_allocations[i][j] = round(quantItem * graph[i][j] - fractional_allocations[i][j]);
+                integral_allocations[i][j] = round(graph[i][j] - fractional_allocations[i][j]);
                 final_allocations[i][j] = integral_allocations[i][j];
                 //cout << "Bidder " << i << " has " << fractional_allocations[i][j] << " of good " << j << "\n";
             }
@@ -348,20 +338,27 @@ int main() {
 
             for (int i = 0; i < num_bidders; ++i) {
                 //wenn zufallszahl <= partial_sums[i] => bieter i bekommt das fraktionale gut zugewiesen und break;
-                if (rdm_number <= partial_sums[i]) {
+               //attention alt: if (rdm_number <= partial_sums[i]){
+               if (rdm_number <= partial_sums[i] && (bidders[i].budget - sum_frac[j]/prices[j]) <= 0
+                        && accumulate(final_allocations[i].begin(), final_allocations[i].end(),0.0) + sum_frac[j] <= quantItem){
                     final_allocations[i][j] += sum_frac[j];
                     break;
+               }
+
+                else{
+                    continue;
                 }
+
             }
         }
 
         cout << "Original allocations:" << endl;
         for (int i = 0; i < num_bidders; ++i) {
             for (int j = 0; j < num_goods; ++j) {
-                    if((quantItem * graph[i][j]) < 0.01) {
+                    if((graph[i][j]) < 0.01) {
                         graph[i][j] = 0;
                     }
-                cout << quantItem * graph[i][j] << " ";
+                cout << graph[i][j] << " ";
             }
             cout << "|";
         }
@@ -386,12 +383,40 @@ int main() {
         cout << endl;
 
         cout << "Randomized rounding allocations: " << endl;
+
         for (int i = 0; i < num_bidders; ++i) {
+            for (int j = 0; j < num_goods; ++j) {
+
+                //new version
+                final_allocations[i][j] += integral_allocations[i][j];
+                //round half up
+                if(fractional_allocations[i][j] >= 0.5){
+                    //Attention: wäre das gleiche wie "+=ceil(fractional_allocations[i][j])"
+                    integral_allocations[i][j] += 1;
+                    final_allocations[i][j] = integral_allocations[i][j];
+                    cout << final_allocations[i][j] << " ";
+                }
+                else{
+                    final_allocations[i][j] = integral_allocations[i][j];
+                    cout << final_allocations[i][j] << " ";
+                }
+
+
+            }
+            cout << "|";
+        }
+
+
+
+        //attention: old version
+       /* for (int i = 0; i < num_bidders; ++i) {
             for (int j = 0; j < num_goods; ++j) {
                 cout << final_allocations[i][j] << " ";
             }
             cout << "|";
-        }
+        }*/
+
+
         cout << endl;
 
 
@@ -414,46 +439,47 @@ int main() {
 
 
     for (int i = 0; i < num_bidders; ++i) {
+        rd_util = 0.0;
         for (int j = 0; j < num_goods; ++j) {
-            rd_util = rd_util + (((final_allocations[i][j]) / quantItem) * bidders[i].valuation[j]);
+
+            //attention: old version
+            //rd_util = rd_util + (((final_allocations[i][j]) / quantItem) * bidders[i].valuation[j]);
+
+            //new version
+            if(final_allocations[i][j] >= 1){
+                rd_util += (((final_allocations[i][j])) * bidders[i].valuation[j]);
+            }
+            else{
+                rd_util += 0.0;
+            }
+
         }
+
+
+
         //max_utility for rounded alloc
         rd_max_utility[i] = rd_util;
-        cout << rd_util << " | ";
+        cout << rd_max_utility[i]<< " | ";
         //myfile << rd_util << " | ";
-        myfile2 << rd_util << " | ";
+        myfile2 << rd_max_utility[i] << " | ";
+
+        for (int i = 0; i < num_bidders; ++i) {
+            for (int j = 0; j < num_goods; ++j) {
+
+                max_utility[i] += graph[i][j] * bidders[i].valuation[j];
+
+            }
+
+        }
+
 
         //max_utility:
-        cout << std::setprecision(pre)  << max_utility[i] << " | ";
+        cout << std::setprecision(pre)  << max_utility[i] << " | " << "\n" ;
         //myfile << std::setprecision(pre)  << max_utility[i] << " | ";
         myfile2 << std::setprecision(pre)  << max_utility[i] << "\n";
 
-        //integrality gap:
-        if(rd_max_utility[i] <= max_utility[i]) {
-            cout << std::setprecision(pre) << rd_max_utility[i] / max_utility[i] << "\n";
-            // myfile << std::setprecision(pre)  << rd_max_utility[i]/max_utility[i] << "\n";
-            int_gap = int_gap + (rd_max_utility[i] / max_utility[i]);
-        }
-        //integer sol > optimal sol
-        else{
-            cout << " \n";
-        }
-        /* if(rd_max_utility[i] > max_utility[i]){
-            cout << std::setprecision(pre)  << max_utility[i]/rd_max_utility[i] << "\n";
-            //myfile << std::setprecision(pre)  << max_utility[i]/rd_max_utility[i] << "\n";
-            int_gap = int_gap + (max_utility[i]/rd_max_utility[i]);
-            }*/
-        print_int_gap = int_gap;
-        if(i==(num_bidders-1)){
-            avg_int_gap = print_int_gap; // /num_bidders;
-        }
-        int_gap = 0.0;
-        rd_util = 0.0;
+
     }
-    /*myfile << "Integrality gap is in average: " << avg_int_gap;
-    myfile << "\n";
-    myfile << "\n";
-    myfile << "\n";*/
 
 
     }
