@@ -143,6 +143,7 @@ int main() {
 
 
     myfile2.open ("results.txt", std::ios_base::app);
+    myfile2 << "\n";
     myfile2 << "Number Goods: " << num_goods << ", " << " Number Bidders: " << num_bidders << ", "  << " Number Iterations: " << num_iterations << ", "  << " Quantitaet pro Gut: " << quantItem << ", "  << " Rep experiment: " << num_iter_exp << "\n";
     myfile2 << "max_utility for rounded alloc | max_utility" << "\n";
 
@@ -338,9 +339,15 @@ int main() {
 
             for (int i = 0; i < num_bidders; ++i) {
                 //wenn zufallszahl <= partial_sums[i] => bieter i bekommt das fraktionale gut zugewiesen und break;
-               //attention alt: if (rdm_number <= partial_sums[i]){
-               if (rdm_number <= partial_sums[i] && (bidders[i].budget - sum_frac[j]/prices[j]) <= 0
-                        && accumulate(final_allocations[i].begin(), final_allocations[i].end(),0.0) + sum_frac[j] <= quantItem){
+
+                //Attention: mit price constraint
+               /*if (rdm_number <= partial_sums[i] && (bidders[i].budget - sum_frac[j]/prices[j]) <= 0
+                        && accumulate(final_allocations[i].begin(), final_allocations[i].end(),0.0) + sum_frac[j] <= quantItem){*/
+
+                //Attention: ohne price constraint
+                   if (rdm_number <= partial_sums[i]
+                       && accumulate(final_allocations[i].begin(), final_allocations[i].end(),0.0) + sum_frac[j] <= quantItem){
+
                     final_allocations[i][j] += sum_frac[j];
                     break;
                }
