@@ -251,7 +251,8 @@ int main() {
         for (int i = 0; i < num_bidders; ++i) {
             for (int j = 0; j < num_goods; ++j) {
                 //attention: graph ist der allocation graph (wieviele Teile bekommt der Bidder pro gut j)
-                graph[i][j] = (quantItem * bidders[i].spent[j]) / prices[j]; //bidders.spent = nan?
+                graph[i][j] = (quantItem * bidders[i].spent[j]) / prices[j];
+                bidders[i].budget -= bidders[i].spent[j];
                 if(isnan(graph[i][j])) {
                     graph[i][j] = 0.0000001;
                 }
@@ -490,6 +491,14 @@ int main() {
 
 
     }
+
+        cout << "Budget: \n";
+        for (int i = 0; i < num_bidders; ++i) {
+            if(bidders[i].budget < 0.1){
+                bidders[i].budget = 0;
+            }
+            cout << bidders[i].budget << "\n";
+        }
 
 
     }

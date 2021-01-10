@@ -90,3 +90,26 @@ max_utility for rounded alloc | max_utility
 92 | 443
 104 | 653
 57 | 392
+
+Number Goods: 12,  Number Bidders: 8,  Number Iterations: 2000,  Quantitaet pro Gut: 5,  Rep experiment: 2
+max_utility for rounded alloc | max_utility
+
+
+105 | 104
+32 | 49.6
+155 | 470
+243 | 888
+165 | 832
+73 | 444
+300 | 2.2e+03
+123 | 940
+
+
+115 | 116
+163 | 315
+148 | 419
+149 | 615
+200 | 1.04e+03
+135 | 745
+164 | 1.22e+03
+100 | 800
