@@ -20,8 +20,7 @@
 
 //floor function eingefügt
 
-
-// gibt es pro Gut genau eine Einheit??? -> Annahme ja! (22.10.20)
+//ATTENTION: es gibt 2 Möglichkeiten (mit und ohne budget constraint)
 
 using namespace std;
 
@@ -341,10 +340,14 @@ int main() {
                 //wenn zufallszahl <= partial_sums[i] => bieter i bekommt das fraktionale gut zugewiesen und break;
 
                 //Attention: mit price constraint
-               /*if (rdm_number <= partial_sums[i] && (bidders[i].budget - sum_frac[j]/prices[j]) <= 0
-                        && accumulate(final_allocations[i].begin(), final_allocations[i].end(),0.0) + sum_frac[j] <= quantItem){*/
+               if (rdm_number <= partial_sums[i] && (bidders[i].budget - sum_frac[j]/prices[j]) <= 0
+                        && accumulate(final_allocations[i].begin(), final_allocations[i].end(),0.0) + sum_frac[j] <= quantItem){
 
-                //Attention: ohne price constraint
+                   final_allocations[i][j] += sum_frac[j];
+                   break;
+               }
+
+              /*  //Attention: ohne price constraint
                    if (rdm_number <= partial_sums[i]
                        && accumulate(final_allocations[i].begin(), final_allocations[i].end(),0.0) + sum_frac[j] <= quantItem){
 
@@ -354,7 +357,7 @@ int main() {
 
                 else{
                     continue;
-                }
+                }*/
 
             }
         }
