@@ -340,7 +340,7 @@ int main() {
             for (int i = 0; i < num_bidders; ++i) {
                 //wenn zufallszahl <= partial_sums[i] => bieter i bekommt das fraktionale gut zugewiesen und break;
 
-                //Attention: mit price constraint
+                //Attention: mit budget constraint
                if (rdm_number <= partial_sums[i] && (bidders[i].budget - sum_frac[j]/prices[j]) <= 0
                         && accumulate(final_allocations[i].begin(), final_allocations[i].end(),0.0) + sum_frac[j] <= quantItem){
 
@@ -348,7 +348,7 @@ int main() {
                    break;
                }
 
-              /*  //Attention: ohne price constraint
+              /*  //Attention: ohne budget constraint
                    if (rdm_number <= partial_sums[i]
                        && accumulate(final_allocations[i].begin(), final_allocations[i].end(),0.0) + sum_frac[j] <= quantItem){
 
